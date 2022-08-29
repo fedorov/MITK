@@ -89,18 +89,12 @@ Q_SIGNALS:
   void WheelMoved(QWheelEvent *);
   void Moved();
 
-protected:
-
-  void RemoveRenderWindowWidget() override;
-
 private:
 
   void SetLayoutImpl() override;
   void SetInteractionSchemeImpl() override { }
 
   void CreateRenderWindowWidget();
-
-  mitk::SliceNavigationController* m_TimeNavigationController;
 
   bool m_CrosshairVisibility;
 
