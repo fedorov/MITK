@@ -19,16 +19,17 @@ found in the LICENSE file.
 #include <vtkRenderWindow.h>
 #include <vtk_glew.h>
 
-#include "QmitkRenderWindow.h"
-#include "QmitkStepperAdapter.h"
+#include <QmitkRenderWindow.h>
+#include <QmitkStepperAdapter.h>
+#include <QmitkFFmpegWriter.h>
 
-#include "QmitkFFmpegWriter.h"
-#include "mitkNodePredicateNot.h"
-#include "mitkNodePredicateProperty.h"
-#include "mitkProperties.h"
+#include <mitkNodePredicateNot.h>
+#include <mitkNodePredicateProperty.h>
+#include <mitkProperties.h>
 #include <mitkCoreServices.h>
 #include <mitkIPreferencesService.h>
 #include <mitkIPreferences.h>
+#include <mitkTimeNavigationController.h>
 
 #include <QDir>
 #include <QFileDialog>
@@ -81,10 +82,9 @@ void QmitkSimpleExampleView::RenderWindowPartActivated(mitk::IRenderWindowPart *
   }
 
   RenderWindowSelected(m_Controls->renderWindowComboBox->currentText());
-  m_TimeStepper.reset(new QmitkStepperAdapter(m_Controls->timeSliceNavigationWidget,
-                                              renderWindowPart->GetTimeNavigationController()->GetStepper()));
-  m_MovieStepper.reset(new QmitkStepperAdapter(m_Controls->movieNavigatorTime,
-                                               renderWindowPart->GetTimeNavigationController()->GetStepper()));
+  auto* timeController = mitk::RenderingManager::GetInstance()->GetTimeNavigationController();
+  m_TimeStepper.reset(new QmitkStepperAdapter(m_Controls->timeSliceNavigationWidget, timeController->GetStepper()));
+  m_MovieStepper.reset(new QmitkStepperAdapter(m_Controls->movieNavigatorTime, timeController->GetStepper()));
 
   m_Parent->setEnabled(true);
 }
@@ -178,7 +178,7 @@ void QmitkSimpleExampleView::GenerateMovie()
 {
   QmitkRenderWindow *movieRenderWindow = GetSelectedRenderWindow();
 
-  mitk::Stepper::Pointer stepper = movieRenderWindow->GetSliceNavigationController()->GetStepper();
+  auto* stepper = movieRenderWindow->GetSliceNavigationController()->GetStepper();
 
   QmitkFFmpegWriter *movieWriter = new QmitkFFmpegWriter(m_Parent);
 
