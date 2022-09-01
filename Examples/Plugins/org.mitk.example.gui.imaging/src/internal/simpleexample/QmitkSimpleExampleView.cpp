@@ -82,9 +82,9 @@ void QmitkSimpleExampleView::RenderWindowPartActivated(mitk::IRenderWindowPart *
 
   RenderWindowSelected(m_Controls->renderWindowComboBox->currentText());
   m_TimeStepper.reset(new QmitkStepperAdapter(m_Controls->timeSliceNavigationWidget,
-                                              renderWindowPart->GetTimeNavigationController()->GetTime()));
+                                              renderWindowPart->GetTimeNavigationController()->GetStepper()));
   m_MovieStepper.reset(new QmitkStepperAdapter(m_Controls->movieNavigatorTime,
-                                               renderWindowPart->GetTimeNavigationController()->GetTime()));
+                                               renderWindowPart->GetTimeNavigationController()->GetStepper()));
 
   m_Parent->setEnabled(true);
 }
@@ -178,7 +178,7 @@ void QmitkSimpleExampleView::GenerateMovie()
 {
   QmitkRenderWindow *movieRenderWindow = GetSelectedRenderWindow();
 
-  mitk::Stepper::Pointer stepper = movieRenderWindow->GetSliceNavigationController()->GetSlice();
+  mitk::Stepper::Pointer stepper = movieRenderWindow->GetSliceNavigationController()->GetStepper();
 
   QmitkFFmpegWriter *movieWriter = new QmitkFFmpegWriter(m_Parent);
 
@@ -413,6 +413,6 @@ void QmitkSimpleExampleView::RenderWindowSelected(const QString &id)
   if (!id.isEmpty())
   {
     m_SliceStepper.reset(new QmitkStepperAdapter(m_Controls->sliceNavigationWidget,
-      this->GetRenderWindowPart(mitk::WorkbenchUtil::OPEN)->GetQmitkRenderWindow(id)->GetSliceNavigationController()->GetSlice()));
+      this->GetRenderWindowPart(mitk::WorkbenchUtil::OPEN)->GetQmitkRenderWindow(id)->GetSliceNavigationController()->GetStepper()));
   }
 }

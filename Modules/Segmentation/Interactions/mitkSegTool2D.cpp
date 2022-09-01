@@ -499,7 +499,7 @@ void mitk::SegTool2D::WriteBackSegmentationResults(const std::vector<SegTool2D::
     dynamic_cast<const PlaneGeometry*>(dynamic_cast<const mitk::SlicedGeometry3D*>(
       m_LastEventSender->GetSliceNavigationController()->GetCurrentGeometry3D())
       ->GetPlaneGeometry(0));
-  unsigned int slicePosition = m_LastEventSender->GetSliceNavigationController()->GetSlice()->GetPos();
+  unsigned int slicePosition = m_LastEventSender->GetSliceNavigationController()->GetStepper()->GetPos();
 
   /* A cleaner solution would be to add a contour marker for each slice info. It currently
    does not work as the contour markers expect that the plane is always the plane of slice 0.

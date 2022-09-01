@@ -330,7 +330,7 @@ void QmitkRenderWindowWidget::ComputeInvertedSliceNavigation()
   const mitk::BaseGeometry* rendererGeometry = m_RenderWindow->GetRenderer()->GetCurrentWorldGeometry();
 
   // todo: check timepoint / timestep
-  mitk::TimeStepType timeStep = sliceNavigationController->GetTime()->GetPos();
+  const auto timeStep = mitk::RenderingManager::GetInstance()->GetTimeNavigationController()->GetSelectedTimeStep();
   mitk::BaseGeometry::ConstPointer geometry = inputTimeGeometry->GetGeometryForTimeStep(timeStep);
 
   mitk::AffineTransform3D::MatrixType matrix = geometry->GetIndexToWorldTransform()->GetMatrix();
@@ -409,7 +409,7 @@ void QmitkRenderWindowWidget::OnResetAction(QList<mitk::DataNode::Pointer> selec
 
   // store the current time step to set it again later, if the camera should not be reset
   auto* renderingManager = mitk::RenderingManager::GetInstance();
-  const auto currentTimePoint = renderingManager->GetTimeNavigationController()->GetSelectedTimePoint();
+  const mitk::TimePointType currentTimePoint = renderingManager->GetTimeNavigationController()->GetSelectedTimePoint();
   if (referenceGeometry->IsValidTimePoint(currentTimePoint))
   {
     imageTimeStep = referenceGeometry->TimePointToTimeStep(currentTimePoint);
@@ -420,5 +420,5 @@ void QmitkRenderWindowWidget::OnResetAction(QList<mitk::DataNode::Pointer> selec
 
   // reset position and time step
   this->GetSliceNavigationController()->SelectSliceByPoint(currentPosition);
-  renderingManager->GetTimeNavigationController()->GetTime()->SetPos(imageTimeStep);
+  renderingManager->GetTimeNavigationController()->GetStepper()->SetPos(imageTimeStep);
 }

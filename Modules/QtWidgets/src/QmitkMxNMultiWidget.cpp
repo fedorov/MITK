@@ -138,7 +138,7 @@ void QmitkMxNMultiWidget::SetReferenceGeometry(const mitk::TimeGeometry* referen
   if (!resetCamera)
   {
     this->SetSelectedPosition(currentPosition, "");
-    renderingManager->GetTimeNavigationController()->GetTime()->SetPos(imageTimeStep);
+    renderingManager->GetTimeNavigationController()->GetStepper()->SetPos(imageTimeStep);
   }
 }
 

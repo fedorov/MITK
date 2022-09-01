@@ -160,8 +160,8 @@ mitk::Point3D mitk::CrosshairManager::GetCrosshairPosition() const
 
 void mitk::CrosshairManager::UpdateSlice(const SliceNavigationController* sliceNavigationController)
 {
-  auto viewDirection = sliceNavigationController->GetViewDirection();
-  unsigned int slicePosition = sliceNavigationController->GetSlice()->GetPos();
+  const auto viewDirection = sliceNavigationController->GetViewDirection();
+  const auto slicePosition = sliceNavigationController->GetStepper()->GetPos();
   switch (viewDirection)
   {
     case AnatomicalPlane::Original:

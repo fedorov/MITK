@@ -50,7 +50,7 @@ QmitkRenderWindowUtilityWidget::QmitkRenderWindowUtilityWidget(
 
   m_SliceNavigationWidget = new QmitkSliceNavigationWidget(this);
   m_StepperAdapter =
-    new QmitkStepperAdapter(m_SliceNavigationWidget, sliceNavigationController->GetSlice());
+    new QmitkStepperAdapter(m_SliceNavigationWidget, sliceNavigationController->GetStepper());
   m_Layout->addWidget(m_SliceNavigationWidget);
 
   mitk::RenderWindowLayerUtilities::RendererVector controlledRenderer{ baseRenderer };
