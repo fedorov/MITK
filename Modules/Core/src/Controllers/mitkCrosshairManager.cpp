@@ -128,7 +128,7 @@ mitk::Point3D mitk::CrosshairManager::GetCrosshairPosition() const
   PlaneGeometry* sagittalPlaneGeometry = nullptr;
 
   // get the currently selected time point
-  auto selectedTimePoint = RenderingManager::GetInstance()->GetTimeNavigationController()->GetSelectedTimePoint();
+  const auto selectedTimePoint = RenderingManager::GetInstance()->GetTimeNavigationController()->GetSelectedTimePoint();
   try
   {
     axialPlaneGeometry =
@@ -321,7 +321,7 @@ void mitk::CrosshairManager::UpdatePlaneSlice(DataNode::Pointer planeNode, const
 {
   mitk::PlaneGeometry* planeGeometry = nullptr;
   // get the currently selected time point
-  auto selectedTimePoint = RenderingManager::GetInstance()->GetTimeNavigationController()->GetSelectedTimePoint();
+  const auto selectedTimePoint = RenderingManager::GetInstance()->GetTimeNavigationController()->GetSelectedTimePoint();
   try
   {
     planeGeometry = SliceNavigationHelper::GetCurrentPlaneGeometry(timeGeometry, selectedTimePoint, slice);
@@ -371,7 +371,7 @@ void mitk::CrosshairManager::SetCrosshairPosition(const Point3D& selectedPoint,
   slice = selectedSlice;
   mitk::PlaneGeometry* planeGeometry = nullptr;
   // get the currently selected time point
-  auto selectedTimePoint = RenderingManager::GetInstance()->GetTimeNavigationController()->GetSelectedTimePoint();
+  const auto selectedTimePoint = RenderingManager::GetInstance()->GetTimeNavigationController()->GetSelectedTimePoint();
   try
   {
     planeGeometry = SliceNavigationHelper::GetCurrentPlaneGeometry(timeGeometry, selectedTimePoint, slice);
