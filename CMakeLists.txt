@@ -699,6 +699,10 @@ if(WIN32)
   mitkFunctionCheckCompilerFlags("/wd4180" MITK_CXX_FLAGS) # warning C4180: qualifier applied to function type has no meaning
   mitkFunctionCheckCompilerFlags("/wd4231" MITK_CXX_FLAGS) # warning C4231: nonstandard extension used : 'extern' before template explicit instantiation
   mitkFunctionCheckCompilerFlags("/wd4251" MITK_CXX_FLAGS) # warning C4251: 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
+
+  # Already warn at warning level 1 to match our GCC/Clang settings
+  mitkFunctionCheckCompilerFlags("/w14100" MITK_CXX_FLAGS) # warning C4100: 'identifier' : unreferenced formal parameter
+  mitkFunctionCheckCompilerFlags("/w14101" MITK_CXX_FLAGS) # warning C4101: 'identifier' : unreferenced local variable
 endif()
 
 if(APPLE)
