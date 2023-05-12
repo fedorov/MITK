@@ -693,16 +693,18 @@ set(MITK_CXX_FLAGS_RELEASE )
 set(MITK_EXE_LINKER_FLAGS )
 set(MITK_SHARED_LINKER_FLAGS )
 
-if(WIN32)
+if(MSVC)
   set(MITK_CXX_FLAGS "${MITK_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN -DNOMINMAX")
   mitkFunctionCheckCompilerFlags("/wd4005" MITK_CXX_FLAGS) # warning C4005: macro redefinition
   mitkFunctionCheckCompilerFlags("/wd4180" MITK_CXX_FLAGS) # warning C4180: qualifier applied to function type has no meaning
   mitkFunctionCheckCompilerFlags("/wd4231" MITK_CXX_FLAGS) # warning C4231: nonstandard extension used : 'extern' before template explicit instantiation
   mitkFunctionCheckCompilerFlags("/wd4251" MITK_CXX_FLAGS) # warning C4251: 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
 
-  # Already warn at warning level 1 to match our GCC/Clang settings
-  mitkFunctionCheckCompilerFlags("/w14100" MITK_CXX_FLAGS) # warning C4100: 'identifier' : unreferenced formal parameter
-  mitkFunctionCheckCompilerFlags("/w14101" MITK_CXX_FLAGS) # warning C4101: 'identifier' : unreferenced local variable
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
+    # Already warn at warning level 1 to match our GCC/Clang settings
+    mitkFunctionCheckCompilerFlags("/w14100" MITK_CXX_FLAGS) # warning C4100: 'identifier' : unreferenced formal parameter
+    mitkFunctionCheckCompilerFlags("/w14101" MITK_CXX_FLAGS) # warning C4101: 'identifier' : unreferenced local variable
+  endif()
 endif()
 
 if(APPLE)
