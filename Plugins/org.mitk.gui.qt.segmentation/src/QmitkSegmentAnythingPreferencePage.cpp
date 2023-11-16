@@ -259,7 +259,11 @@ int QmitkSegmentAnythingPreferencePage::FetchSelectedGPUFromUI() const
 void QmitkSegmentAnythingPreferencePage::OnInstallBtnClicked()
 {
   QString systemPython = OnSystemPythonChanged(m_Ui->sysPythonComboBox->currentText());
-  if (!systemPython.isEmpty())
+  if (systemPython.isEmpty())
+  {
+    this->WriteErrorMessage("<b>ERROR: </b>Python not found.");
+  }
+  else
   {
     this->WriteStatusMessage("<b>STATUS: </b>Installing SAM...");
     m_Ui->installSAMButton->setEnabled(false);
