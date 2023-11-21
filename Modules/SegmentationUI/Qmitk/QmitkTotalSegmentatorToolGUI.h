@@ -152,13 +152,6 @@ protected:
   QString GetPythonPathFromUI(const QString &) const;
 
   /**
-   * @brief Get the Exact Python Path for any OS
-   * from the virtual environment path.
-   * @return QString 
-   */
-  QString GetExactPythonPath(const QString &) const;
-
-  /**
    * @brief For storing values like Python path across sessions.
    */
   QSettings m_Settings;

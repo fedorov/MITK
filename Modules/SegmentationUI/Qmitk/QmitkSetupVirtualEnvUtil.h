@@ -185,6 +185,14 @@ public:
    */
   static void PrintProcessEvent(itk::Object *, const itk::EventObject &e, void *);
 
+  /**
+  * @brief Get the Exact Python Path for any OS
+  * from the virtual environment path. If python is not found or python is unsupported then empty 
+  * path is returned.
+  * @return QString
+  */
+  static QString GetExactPythonPath(const QString &pyEnv);
+
 private:
   QString m_PythonPath;
   QString m_PipPath;

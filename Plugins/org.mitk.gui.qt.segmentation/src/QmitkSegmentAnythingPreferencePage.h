@@ -79,13 +79,6 @@ protected:
   QString GetPythonPathFromUI(const QString &) const;
 
   /**
-   * @brief Get the Exact Python Path for any OS
-   * from the virtual environment path.
-   * @return QString
-   */
-  QString GetExactPythonPath(const QString &) const;
-
-  /**
    * @brief Adds GPU information to the gpu combo box.
    * In case, there aren't any GPUs avaialble, the combo box will be
    * rendered editable.

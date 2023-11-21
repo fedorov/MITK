@@ -92,7 +92,7 @@ void QmitkTotalSegmentatorToolGUI::InitializeUI(QBoxLayout *mainLayout)
   m_IsInstalled = this->IsTotalSegmentatorInstalled(storageDir);
   if (m_IsInstalled)
   {
-    m_PythonPath = GetExactPythonPath(storageDir);
+    m_PythonPath = QmitkSetupVirtualEnvUtil::GetExactPythonPath(storageDir);
     m_Installer.SetVirtualEnvPath(m_PythonPath);
     this->EnableAll(m_IsInstalled);
     welcomeText += " TotalSegmentator is already found installed."; 
@@ -165,7 +165,7 @@ void QmitkTotalSegmentatorToolGUI::OnInstallBtnClicked()
     isInstalled = m_Installer.SetupVirtualEnv(m_Installer.VENV_NAME);
     if (isInstalled)
     {
-      m_PythonPath = this->GetExactPythonPath(m_Installer.GetVirtualEnvPath());
+      m_PythonPath = QmitkSetupVirtualEnvUtil::GetExactPythonPath(m_Installer.GetVirtualEnvPath());
       this->WriteStatusMessage("<b>STATUS: </b>Successfully installed TotalSegmentator.");
     }
     else
@@ -344,7 +344,7 @@ QString QmitkTotalSegmentatorToolGUI::OnSystemPythonChanged(const QString &pyEnv
   else
   { 
     QString uiPyPath = this->GetPythonPathFromUI(pyEnv);
-    pyPath = this->GetExactPythonPath(uiPyPath);
+    pyPath = QmitkSetupVirtualEnvUtil::GetExactPythonPath(uiPyPath);
   }
   return pyPath;
 }
@@ -375,7 +375,7 @@ void QmitkTotalSegmentatorToolGUI::OnPythonPathChanged(const QString &pyEnv)
   {// Show positive status meeage
     m_Controls.previewButton->setDisabled(false);
     QString uiPyPath = this->GetPythonPathFromUI(pyEnv);
-    m_PythonPath = this->GetExactPythonPath(uiPyPath);
+    m_PythonPath = QmitkSetupVirtualEnvUtil::GetExactPythonPath(uiPyPath);
   }
 }
 
@@ -387,34 +387,6 @@ QString QmitkTotalSegmentatorToolGUI::GetPythonPathFromUI(const QString &pyUI) c
     fullPath = fullPath.mid(fullPath.indexOf(")") + 2);
   }
   return fullPath.simplified();
-}
-
-QString QmitkTotalSegmentatorToolGUI::GetExactPythonPath(const QString &pyEnv) const
-{
-  QString fullPath = pyEnv;
-  bool isPythonExists = false;
-#ifdef _WIN32
-  isPythonExists = QFile::exists(fullPath + QDir::separator() + QString("python.exe"));
-  if (!isPythonExists &&
-      !(fullPath.endsWith("Scripts", Qt::CaseInsensitive) || fullPath.endsWith("Scripts/", Qt::CaseInsensitive)))
-  {
-    fullPath += QDir::separator() + QString("Scripts");
-    isPythonExists = QFile::exists(fullPath + QDir::separator() + QString("python.exe"));
-  }
-#else
-  isPythonExists = QFile::exists(fullPath + QDir::separator() + QString("python3"));
-  if (!isPythonExists && !(fullPath.endsWith("bin", Qt::CaseInsensitive) ||
-                            fullPath.endsWith("bin/", Qt::CaseInsensitive)))
-  {
-    fullPath += QDir::separator() + QString("bin");
-    isPythonExists = QFile::exists(fullPath + QDir::separator() + QString("python3"));
-  }
-#endif
-  if (!isPythonExists)
-  {
-    fullPath.clear();
-  }
-  return fullPath;
 }
 
 void QmitkTotalSegmentatorToolGUI::OnOverrideChecked(int state)
@@ -433,7 +405,7 @@ void QmitkTotalSegmentatorToolGUI::OnOverrideChecked(int state)
     if (m_IsInstalled)
     {
       const QString pythonPath = m_Installer.GetVirtualEnvPath();
-      m_PythonPath = this->GetExactPythonPath(pythonPath);
+      m_PythonPath = QmitkSetupVirtualEnvUtil::GetExactPythonPath(pythonPath);
       this->EnableAll(m_IsInstalled);
     }
   }
