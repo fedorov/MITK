@@ -188,11 +188,10 @@ namespace
   bool CheckForFiles(QString path, QStringList supportedPipVersions)
   {
     bool isFileFound = false;
-    for (QDirIterator subIt(path, QDir::AllDirs, QDirIterator::NoIteratorFlags); subIt.hasNext();)
+    for (QDirIterator subIt(path, QDir::AllEntries, QDirIterator::NoIteratorFlags); subIt.hasNext();)
     {
       subIt.next();
       QString fileName = subIt.fileName();
-      MITK_INFO << fileName.toStdString();
       if (supportedPipVersions.contains(fileName))
       {
         isFileFound = true;
@@ -228,8 +227,12 @@ QString QmitkSetupVirtualEnvUtil::GetExactPythonPath(const QString &pyEnv)
 #else
     = {"python3.9", "python3.10", "python3.11"};
   isPythonExists = QFile::exists(fullPath + QDir::separator() + QString("python3"));
-  QString libPath = fullPath + QDir::separator() + QString("lib");
-  isSupportedVersion = ::CheckForFiles(libPath, supportedPythonVersions);
+  isSupportedVersion = ::CheckForFiles(fullPath, supportedPythonVersions);
+  if (!isSupportedVersion)
+  {
+    QString libPath = fullPath + QDir::separator() + QString("lib");
+    isSupportedVersion = ::CheckForFiles(libPath, supportedPythonVersions);
+  }
   if (!isPythonExists &&
       !(fullPath.endsWith("bin", Qt::CaseInsensitive) || fullPath.endsWith("bin/", Qt::CaseInsensitive)))
   {
@@ -237,7 +240,7 @@ QString QmitkSetupVirtualEnvUtil::GetExactPythonPath(const QString &pyEnv)
     isPythonExists = QFile::exists(fullPath + QDir::separator() + QString("python3"));
   }
 #endif
-  if (!isPythonExists && !isSupportedVersion)
+  if (!isPythonExists || !isSupportedVersion)
   {
     fullPath.clear();
   }

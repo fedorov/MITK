@@ -154,6 +154,7 @@ void QmitkTotalSegmentatorToolGUI::OnInstallBtnClicked()
 {
   bool isInstalled = false;
   QString systemPython = OnSystemPythonChanged(m_Controls.sysPythonComboBox->currentText());
+  MITK_INFO << systemPython.toStdString();
   if (systemPython.isEmpty())
   {
     this->WriteErrorMessage("<b>ERROR: </b>Couldn't find Python.");
@@ -317,7 +318,7 @@ void QmitkTotalSegmentatorToolGUI::AutoParsePythonPaths()
       QString envName = subIt.fileName();
       if (!envName.startsWith('.')) // Filter out irrelevent hidden folders, if any.
       {
-        m_Controls.sysPythonComboBox->addItem("(" + envName + "): " + subIt.filePath());
+        m_Controls.pythonEnvComboBox->addItem("(" + envName + "): " + subIt.filePath());
       }
     }
   }
