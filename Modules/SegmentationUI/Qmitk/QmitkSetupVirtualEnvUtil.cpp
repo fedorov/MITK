@@ -15,7 +15,8 @@ found in the LICENSE file.s
 #include "mitkLog.h"
 #include <QStandardPaths>
 #include <itkCommand.h>
-#include <QDirIterator>
+#include <regex>
+#include <sstream>
 
 QmitkSetupVirtualEnvUtil::QmitkSetupVirtualEnvUtil()
 {
@@ -183,66 +184,80 @@ bool QmitkSetupVirtualEnvUtil::IsPythonPath(const QString &pythonPath)
   return isExists;
 }
 
-namespace
+namespace python
 {
-  bool CheckForFiles(QString path, QStringList supportedPipVersions)
+  std::string pyVersion;
+  void CapturePyVersion(itk::Object * /*pCaller*/, const itk::EventObject &e, void *)
   {
-    bool isFileFound = false;
-    for (QDirIterator subIt(path, QDir::AllEntries, QDirIterator::NoIteratorFlags); subIt.hasNext();)
+    std::string testCOUT;
+    const auto *pEvent = dynamic_cast<const mitk::ExternalProcessStdOutEvent *>(&e);
+    if (pEvent)
     {
-      subIt.next();
-      QString fileName = subIt.fileName();
-      if (supportedPipVersions.contains(fileName))
-      {
-        isFileFound = true;
-        break;
-      }
+      pyVersion = pEvent->GetOutput();
     }
-    return isFileFound;
   }
-} // namespace
+
+  std::vector<int> SplitVersionString(const std::string& version)
+  {
+    std::vector<int> splits;
+    std::string part;
+    std::istringstream tokenStream(version);
+    while (std::getline(tokenStream, part, '.'))
+    {
+      splits.push_back(std::stoi(part));
+    }
+    return splits;
+  }
+  
+  bool IsSupported(const std::string& version, const std::string& low, const std::string& high)
+  {
+    std::vector<int> inHandVersion = SplitVersionString(version);
+    std::vector<int> targetLowVersion = SplitVersionString(low);
+    std::vector<int> targetHighVersion = SplitVersionString(high);
+    if (inHandVersion.size() > 1 && targetLowVersion.size() > 1 && targetHighVersion.size() > 1)
+    { // comparing second part of the version 
+      return (inHandVersion[1] > targetLowVersion[1] && inHandVersion[1] < targetHighVersion[1]);
+    }
+    return false; 
+  }
+}
 
 QString QmitkSetupVirtualEnvUtil::GetExactPythonPath(const QString &pyEnv)
 {
   QString fullPath = pyEnv;
-  bool isPythonExists = false;
+  bool pythonDoesExist = false;
   bool isSupportedVersion = false;
-  const QStringList supportedPythonVersions
 #ifdef _WIN32
-    = {"pip3.9.exe", "pip3.10.exe", "pip3.11.exe", "python39.dll", "python310.dll", "python311.dll"};
   // check if python exist in given folder.
-  isPythonExists = QFile::exists(fullPath + QDir::separator() + QString("python.exe"));
-  // check for python dll file for version
-  isSupportedVersion = ::CheckForFiles(fullPath, supportedPythonVersions);
-  if (!isPythonExists && // check if in Scripts already, if not go there
+  pythonDoesExist = QFile::exists(fullPath + QDir::separator() + QString("python.exe"));
+  if (!pythonDoesExist && // check if in Scripts already, if not go there
       !(fullPath.endsWith("Scripts", Qt::CaseInsensitive) || fullPath.endsWith("Scripts/", Qt::CaseInsensitive)))
   {
     fullPath += QDir::separator() + QString("Scripts");
-    isPythonExists = QFile::exists(fullPath + QDir::separator() + QString("python.exe"));
-    if (!isSupportedVersion) // check for version again, if not successful earlier
-    {
-      isSupportedVersion = ::CheckForFiles(fullPath, supportedPythonVersions);
-    }
+    pythonDoesExist = QFile::exists(fullPath + QDir::separator() + QString("python.exe"));
   }
 #else
-    = {"python3.9", "python3.10", "python3.11"};
-  isPythonExists = QFile::exists(fullPath + QDir::separator() + QString("python3"));
-  isSupportedVersion = ::CheckForFiles(fullPath, supportedPythonVersions);
-  if (!isSupportedVersion)
-  {
-    QString libPath = fullPath + QDir::separator() + QString("lib");
-    isSupportedVersion = ::CheckForFiles(libPath, supportedPythonVersions);
-  }
-  if (!isPythonExists &&
+  pythonDoesExist = QFile::exists(fullPath + QDir::separator() + QString("python3"));
+  if (!pythonDoesExist &&
       !(fullPath.endsWith("bin", Qt::CaseInsensitive) || fullPath.endsWith("bin/", Qt::CaseInsensitive)))
   {
     fullPath += QDir::separator() + QString("bin");
-    isPythonExists = QFile::exists(fullPath + QDir::separator() + QString("python3"));
+    pythonDoesExist = QFile::exists(fullPath + QDir::separator() + QString("python3"));
   }
 #endif
-  if (!isPythonExists || !isSupportedVersion)
+  if (pythonDoesExist)
   {
-    fullPath.clear();
+    std::regex sanitizer(R"([^3\.(\d+)])");
+    std::string command = "python";
+    mitk::ProcessExecutor::ArgumentListType args;
+    auto spExec = mitk::ProcessExecutor::New();
+    auto spCommand = itk::CStyleCommand::New();
+    spCommand->SetCallback(&python::CapturePyVersion);
+    spExec->AddObserver(mitk::ExternalProcessOutputEvent(), spCommand);
+    args.push_back("--version");
+    spExec->Execute(fullPath.toStdString(), command, args);
+    QmitkSetupVirtualEnvUtil::PyVersionNumber = std::regex_replace(python::pyVersion, sanitizer, "");
+    isSupportedVersion = python::IsSupported(QmitkSetupVirtualEnvUtil::PyVersionNumber, "3.8", "3.13");
   }
-  return fullPath;
+  return pythonDoesExist && isSupportedVersion ? fullPath : "";
 }

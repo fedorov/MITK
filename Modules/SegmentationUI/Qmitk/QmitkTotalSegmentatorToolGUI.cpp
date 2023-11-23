@@ -154,25 +154,34 @@ void QmitkTotalSegmentatorToolGUI::OnInstallBtnClicked()
 {
   bool isInstalled = false;
   QString systemPython = OnSystemPythonChanged(m_Controls.sysPythonComboBox->currentText());
-  MITK_INFO << systemPython.toStdString();
   if (systemPython.isEmpty())
   {
     this->WriteErrorMessage("<b>ERROR: </b>Couldn't find Python.");
+    return;
+  }
+  // check if python 3.12 and ask for confirmation
+  if ((QmitkSetupVirtualEnvUtil::PyVersionNumber.rfind("3.12", 0) == 0) &&
+      QMessageBox::No == QMessageBox::question(
+                          nullptr,
+                          "Installing Totalsegmentator",
+                          QString("WARNING: This is an unsupported version of Python that may not work."
+                                  "We recommend using a supported Python version between 3.9 and 3.11."),
+                          QMessageBox::Yes | QMessageBox::No,
+                          QMessageBox::No))
+  {
+    return;
+  }
+  this->WriteStatusMessage("<b>STATUS: </b>Installing TotalSegmentator...");
+  m_Installer.SetSystemPythonPath(systemPython);
+  isInstalled = m_Installer.SetupVirtualEnv(m_Installer.VENV_NAME);
+  if (isInstalled)
+  {
+    m_PythonPath = QmitkSetupVirtualEnvUtil::GetExactPythonPath(m_Installer.GetVirtualEnvPath());
+    this->WriteStatusMessage("<b>STATUS: </b>Successfully installed TotalSegmentator.");
   }
   else
   {
-    this->WriteStatusMessage("<b>STATUS: </b>Installing TotalSegmentator...");
-    m_Installer.SetSystemPythonPath(systemPython);
-    isInstalled = m_Installer.SetupVirtualEnv(m_Installer.VENV_NAME);
-    if (isInstalled)
-    {
-      m_PythonPath = QmitkSetupVirtualEnvUtil::GetExactPythonPath(m_Installer.GetVirtualEnvPath());
-      this->WriteStatusMessage("<b>STATUS: </b>Successfully installed TotalSegmentator.");
-    }
-    else
-    {
-      this->WriteErrorMessage("<b>ERROR: </b>Couldn't install TotalSegmentator.");
-    }
+    this->WriteErrorMessage("<b>ERROR: </b>Couldn't install TotalSegmentator.");
   }
   this->EnableAll(isInstalled);
 }

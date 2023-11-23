@@ -236,12 +236,22 @@ void QmitkSegmentAnythingPreferencePage::OnInstallBtnClicked()
     this->WriteErrorMessage("<b>ERROR: </b>Python not found.");
     return;
   }
+  //check if python 3.12 and ask for confirmation
+  if ((QmitkSetupVirtualEnvUtil::PyVersionNumber.rfind("3.12", 0) == 0) &&
+       QMessageBox::No == QMessageBox::question(nullptr,
+                            "Installing Segment Anything",
+                            QString("WARNING: This is an unsupported version of Python that may not work."
+                                    "We recommend using a supported Python version between 3.9 and 3.11."),
+                            QMessageBox::Yes | QMessageBox::No,
+                            QMessageBox::No))
+  {
+    return;
+  }
   this->WriteStatusMessage("<b>STATUS: </b>Installing SAM...");
   m_Ui->installSAMButton->setEnabled(false);
   m_Installer.SetSystemPythonPath(systemPython);
   bool isInstalled = false;
-  bool isFinished = m_Installer.SetupVirtualEnv(m_Installer.VENV_NAME);
-  if (isFinished)
+  if (m_Installer.SetupVirtualEnv(m_Installer.VENV_NAME))
   {
     isInstalled = QmitkSegmentAnythingToolGUI::IsSAMInstalled(m_Installer.GetVirtualEnvPath());
   }

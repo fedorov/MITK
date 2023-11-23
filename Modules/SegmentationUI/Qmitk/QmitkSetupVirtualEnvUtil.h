@@ -187,11 +187,12 @@ public:
 
   /**
   * @brief Get the Exact Python Path for any OS
-  * from the virtual environment path. If python is not found or python is unsupported then empty 
-  * path is returned.
-  * @return QString
+  * from the virtual environment path.
+  * @return The exact python path or empty, if an supported version of Python could not be found.
   */
   static QString GetExactPythonPath(const QString &pyEnv);
+
+  inline static std::string PyVersionNumber;
 
 private:
   QString m_PythonPath;
