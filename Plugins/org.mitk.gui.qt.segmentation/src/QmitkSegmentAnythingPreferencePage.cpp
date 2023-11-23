@@ -233,7 +233,7 @@ void QmitkSegmentAnythingPreferencePage::OnInstallBtnClicked()
   QString systemPython = OnSystemPythonChanged(m_Ui->sysPythonComboBox->currentText());
   if (systemPython.isEmpty())
   {
-    this->WriteErrorMessage("<b>ERROR: </b>Python not found.");
+    this->WriteErrorMessage("<b>ERROR: </b>Couldn't find compatible Python.");
     return;
   }
   //check if python 3.12 and ask for confirmation

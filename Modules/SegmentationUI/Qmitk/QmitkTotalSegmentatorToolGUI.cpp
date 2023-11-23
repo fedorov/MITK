@@ -156,7 +156,7 @@ void QmitkTotalSegmentatorToolGUI::OnInstallBtnClicked()
   QString systemPython = OnSystemPythonChanged(m_Controls.sysPythonComboBox->currentText());
   if (systemPython.isEmpty())
   {
-    this->WriteErrorMessage("<b>ERROR: </b>Couldn't find Python.");
+    this->WriteErrorMessage("<b>ERROR: </b>Couldn't find compatible Python.");
     return;
   }
   // check if python 3.12 and ask for confirmation
@@ -376,7 +376,7 @@ void QmitkTotalSegmentatorToolGUI::OnPythonPathChanged(const QString &pyEnv)
         oldState); // unblock signal firing after inserting item. Remove this after Qt6 migration
     }
   }
-  else if (!this->IsTotalSegmentatorInstalled(pyEnv))
+  else if (!this->IsTotalSegmentatorInstalled(this->GetPythonPathFromUI(pyEnv)))
   {
     this->ShowErrorMessage(WARNING_TOTALSEG_NOT_FOUND);
     m_Controls.previewButton->setDisabled(true);

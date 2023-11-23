@@ -186,14 +186,14 @@ bool QmitkSetupVirtualEnvUtil::IsPythonPath(const QString &pythonPath)
 
 namespace python
 {
-  std::string pyVersion;
+  std::string pyVersionCaptured;
   void CapturePyVersion(itk::Object * /*pCaller*/, const itk::EventObject &e, void *)
   {
     std::string testCOUT;
     const auto *pEvent = dynamic_cast<const mitk::ExternalProcessStdOutEvent *>(&e);
     if (pEvent)
     {
-      pyVersion = pEvent->GetOutput();
+      pyVersionCaptured = pEvent->GetOutput();
     }
   }
 
@@ -228,8 +228,9 @@ QString QmitkSetupVirtualEnvUtil::GetExactPythonPath(const QString &pyEnv)
   bool pythonDoesExist = false;
   bool isSupportedVersion = false;
 #ifdef _WIN32
+  const std::string PYTHON_EXE = "python.exe";
   // check if python exist in given folder.
-  pythonDoesExist = QFile::exists(fullPath + QDir::separator() + QString("python.exe"));
+  pythonDoesExist = QFile::exists(fullPath + QDir::separator() + QString::fromStdString(PYTHON_EXE));
   if (!pythonDoesExist && // check if in Scripts already, if not go there
       !(fullPath.endsWith("Scripts", Qt::CaseInsensitive) || fullPath.endsWith("Scripts/", Qt::CaseInsensitive)))
   {
@@ -237,7 +238,8 @@ QString QmitkSetupVirtualEnvUtil::GetExactPythonPath(const QString &pyEnv)
     pythonDoesExist = QFile::exists(fullPath + QDir::separator() + QString("python.exe"));
   }
 #else
-  pythonDoesExist = QFile::exists(fullPath + QDir::separator() + QString("python3"));
+  const std::string PYTHON_EXE = "python3";
+  pythonDoesExist = QFile::exists(fullPath + QDir::separator() + QString::fromStdString(PYTHON_EXE));
   if (!pythonDoesExist &&
       !(fullPath.endsWith("bin", Qt::CaseInsensitive) || fullPath.endsWith("bin/", Qt::CaseInsensitive)))
   {
@@ -248,15 +250,14 @@ QString QmitkSetupVirtualEnvUtil::GetExactPythonPath(const QString &pyEnv)
   if (pythonDoesExist)
   {
     std::regex sanitizer(R"([^3\.(\d+)])");
-    std::string command = "python";
     mitk::ProcessExecutor::ArgumentListType args;
     auto spExec = mitk::ProcessExecutor::New();
     auto spCommand = itk::CStyleCommand::New();
     spCommand->SetCallback(&python::CapturePyVersion);
     spExec->AddObserver(mitk::ExternalProcessOutputEvent(), spCommand);
     args.push_back("--version");
-    spExec->Execute(fullPath.toStdString(), command, args);
-    QmitkSetupVirtualEnvUtil::PyVersionNumber = std::regex_replace(python::pyVersion, sanitizer, "");
+    spExec->Execute(fullPath.toStdString(), PYTHON_EXE, args);
+    QmitkSetupVirtualEnvUtil::PyVersionNumber = std::regex_replace(python::pyVersionCaptured, sanitizer, "");
     isSupportedVersion = python::IsSupported(QmitkSetupVirtualEnvUtil::PyVersionNumber, "3.8", "3.13");
   }
   return pythonDoesExist && isSupportedVersion ? fullPath : "";
