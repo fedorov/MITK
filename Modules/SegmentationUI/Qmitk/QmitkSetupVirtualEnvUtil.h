@@ -17,8 +17,6 @@ found in the LICENSE file.s
 #include "mitkProcessExecutor.h"
 #include <MitkSegmentationUIExports.h>
 #include <QString>
-#include <mutex>
-
 
 namespace python
 {

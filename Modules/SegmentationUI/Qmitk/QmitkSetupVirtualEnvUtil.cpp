@@ -19,6 +19,7 @@ found in the LICENSE file.s
 #include <sstream>
 #include <QDir>
 #include <QApplication>
+#include <mutex>
 
 QmitkSetupVirtualEnvUtil::QmitkSetupVirtualEnvUtil()
 {
