@@ -19,6 +19,7 @@ found in the LICENSE file.
 #include <QmitkSetupVirtualEnvUtil.h>
 #include <QStandardPaths>
 #include <ui_QmitkSegmentAnythingPreferencePage.h>
+#include <QDir>
 
 class QWidget;
 
@@ -61,7 +62,7 @@ public:
 private slots:
   void OnInstallBtnClicked();
   void OnClearInstall();
-  QString OnSystemPythonChanged(const QString&);
+  python::PythonPath OnSystemPythonChanged(const QString &);
 
 protected:
   /**

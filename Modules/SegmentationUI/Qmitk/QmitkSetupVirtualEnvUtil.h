@@ -17,8 +17,22 @@ found in the LICENSE file.s
 #include "mitkProcessExecutor.h"
 #include <MitkSegmentationUIExports.h>
 #include <QString>
-#include <QDir>
-#include <QApplication>
+#include <mutex>
+
+
+namespace python
+{
+  /**
+   * @brief Class to hold python path details like absolute path to python
+   * executable and its version. 
+   */
+  struct PythonPath
+  {
+    QString path;
+    QString version;
+  };
+}
+
 
 /**
  * @brief Abstract Class to Setup a python virtual environment and pip install required packages.
@@ -190,9 +204,7 @@ public:
   * from the virtual environment path.
   * @return The exact python path or empty, if an supported version of Python could not be found.
   */
-  static QString GetExactPythonPath(const QString &pyEnv);
-
-  inline static std::string PyVersionNumber;
+  static python::PythonPath GetExactPythonPath(const QString &pyEnv);
 
 private:
   QString m_PythonPath;

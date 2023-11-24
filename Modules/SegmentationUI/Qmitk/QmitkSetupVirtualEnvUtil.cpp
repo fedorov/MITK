@@ -17,6 +17,8 @@ found in the LICENSE file.s
 #include <itkCommand.h>
 #include <regex>
 #include <sstream>
+#include <QDir>
+#include <QApplication>
 
 QmitkSetupVirtualEnvUtil::QmitkSetupVirtualEnvUtil()
 {
@@ -186,6 +188,7 @@ bool QmitkSetupVirtualEnvUtil::IsPythonPath(const QString &pythonPath)
 
 namespace python
 {
+  std::mutex mutex;
   std::string pyVersionCaptured;
   void CapturePyVersion(itk::Object * /*pCaller*/, const itk::EventObject &e, void *)
   {
@@ -222,7 +225,7 @@ namespace python
   }
 }
 
-QString QmitkSetupVirtualEnvUtil::GetExactPythonPath(const QString &pyEnv)
+python::PythonPath QmitkSetupVirtualEnvUtil::GetExactPythonPath(const QString &pyEnv)
 {
   QString fullPath = pyEnv;
   bool pythonDoesExist = false;
@@ -247,8 +250,10 @@ QString QmitkSetupVirtualEnvUtil::GetExactPythonPath(const QString &pyEnv)
     pythonDoesExist = QFile::exists(fullPath + QDir::separator() + QString("python3"));
   }
 #endif
+  python::PythonPath pythonPath;
   if (pythonDoesExist)
   {
+    python::mutex.lock();
     std::regex sanitizer(R"([^3\.(\d+)])");
     mitk::ProcessExecutor::ArgumentListType args;
     auto spExec = mitk::ProcessExecutor::New();
@@ -257,8 +262,11 @@ QString QmitkSetupVirtualEnvUtil::GetExactPythonPath(const QString &pyEnv)
     spExec->AddObserver(mitk::ExternalProcessOutputEvent(), spCommand);
     args.push_back("--version");
     spExec->Execute(fullPath.toStdString(), PYTHON_EXE, args);
-    QmitkSetupVirtualEnvUtil::PyVersionNumber = std::regex_replace(python::pyVersionCaptured, sanitizer, "");
-    isSupportedVersion = python::IsSupported(QmitkSetupVirtualEnvUtil::PyVersionNumber, "3.8", "3.13");
+    std::string pyVersionNumber = std::regex_replace(python::pyVersionCaptured, sanitizer, "");
+    isSupportedVersion = python::IsSupported(pyVersionNumber, "3.8", "3.13");
+    pythonPath.version = QString::fromStdString(pyVersionNumber);
+    python::mutex.unlock();
   }
-  return pythonDoesExist && isSupportedVersion ? fullPath : "";
+  pythonPath.path = pythonDoesExist &&isSupportedVersion ? fullPath : "";
+  return pythonPath;
 }

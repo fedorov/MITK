@@ -66,7 +66,7 @@ void QmitkSegmentAnythingPreferencePage::CreateQtControl(QWidget* parent)
   QString welcomeText;
   if (isInstalled)
   {
-    m_PythonPath = QmitkSetupVirtualEnvUtil::GetExactPythonPath(storageDir);
+    m_PythonPath = QmitkSetupVirtualEnvUtil::GetExactPythonPath(storageDir).path;
     m_Installer.SetVirtualEnvPath(m_PythonPath);
     welcomeText += " Segment Anything tool is already found installed.";
     m_Ui->installSAMButton->setEnabled(false);
@@ -124,9 +124,9 @@ void QmitkSegmentAnythingPreferencePage::Update()
   }
 }
 
-QString QmitkSegmentAnythingPreferencePage::OnSystemPythonChanged(const QString &pyEnv)
+python::PythonPath QmitkSegmentAnythingPreferencePage::OnSystemPythonChanged(const QString &pyEnv)
 {
-  QString pyPath;
+  python::PythonPath pyPath;
   if (pyEnv == QString("Select..."))
   {
     QString path = QFileDialog::getExistingDirectory(m_Ui->sysPythonComboBox->parentWidget(), "Python Path", "dir");
@@ -230,14 +230,14 @@ int QmitkSegmentAnythingPreferencePage::FetchSelectedGPUFromUI() const
 
 void QmitkSegmentAnythingPreferencePage::OnInstallBtnClicked()
 {
-  QString systemPython = OnSystemPythonChanged(m_Ui->sysPythonComboBox->currentText());
-  if (systemPython.isEmpty())
+  python::PythonPath systemPython = OnSystemPythonChanged(m_Ui->sysPythonComboBox->currentText());
+  if (systemPython.path.isEmpty())
   {
     this->WriteErrorMessage("<b>ERROR: </b>Couldn't find compatible Python.");
     return;
   }
   //check if python 3.12 and ask for confirmation
-  if ((QmitkSetupVirtualEnvUtil::PyVersionNumber.rfind("3.12", 0) == 0) &&
+  if (systemPython.path.startsWith("3.12") &&
        QMessageBox::No == QMessageBox::question(nullptr,
                             "Installing Segment Anything",
                             QString("WARNING: This is an unsupported version of Python that may not work."
@@ -249,7 +249,7 @@ void QmitkSegmentAnythingPreferencePage::OnInstallBtnClicked()
   }
   this->WriteStatusMessage("<b>STATUS: </b>Installing SAM...");
   m_Ui->installSAMButton->setEnabled(false);
-  m_Installer.SetSystemPythonPath(systemPython);
+  m_Installer.SetSystemPythonPath(systemPython.path);
   bool isInstalled = false;
   if (m_Installer.SetupVirtualEnv(m_Installer.VENV_NAME))
   {
@@ -257,7 +257,7 @@ void QmitkSegmentAnythingPreferencePage::OnInstallBtnClicked()
   }
   if (isInstalled)
   {
-    m_PythonPath = QmitkSetupVirtualEnvUtil::GetExactPythonPath(m_Installer.GetVirtualEnvPath());
+    m_PythonPath = QmitkSetupVirtualEnvUtil::GetExactPythonPath(m_Installer.GetVirtualEnvPath()).path;
     this->WriteStatusMessage("<b>STATUS: </b>Successfully installed SAM.");
   }
   else

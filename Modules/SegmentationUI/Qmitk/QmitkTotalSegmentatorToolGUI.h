@@ -21,6 +21,7 @@ found in the LICENSE file.
 #include <QMessageBox>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QDir>
 
 /**
  * @brief Installer class for TotalSegmentator Tool.
@@ -72,7 +73,7 @@ protected slots:
   /**
    * @brief Qt Slot
    */
-  QString OnSystemPythonChanged(const QString &);
+  python::PythonPath OnSystemPythonChanged(const QString &);
 
   /**
    * @brief Qt Slot
