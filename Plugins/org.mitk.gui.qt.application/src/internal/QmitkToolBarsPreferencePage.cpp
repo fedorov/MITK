@@ -110,7 +110,7 @@ QmitkToolBarsPreferencePage::~QmitkToolBarsPreferencePage()
 {
 }
 
-void QmitkToolBarsPreferencePage::Init(berry::IWorkbench::Pointer workbench)
+void QmitkToolBarsPreferencePage::Init(berry::IWorkbench::Pointer)
 {
 }
 
