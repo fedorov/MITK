@@ -873,7 +873,7 @@ void QmitkExtWorkbenchWindowAdvisor::PostWindowCreate()
       if (!viewDescriptorsInCurrentCategory.isEmpty())
       {
         auto toolbar = new QToolBar;
-        toolbar->setObjectName(category + " View Toolbar");
+        toolbar->setObjectName(category);
         mainWindow->addToolBar(toolbar);
 
         if (showCategoryNames && !category.isEmpty())

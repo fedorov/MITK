@@ -634,7 +634,7 @@ void QmitkFlowApplicationWorkbenchWindowAdvisor::PostWindowCreate()
       if (!relevantViewDescriptors.isEmpty())
       {
         auto toolbar = new QToolBar;
-        toolbar->setObjectName(category + " View Toolbar");
+        toolbar->setObjectName(category);
         mainWindow->addToolBar(toolbar);
 
         if (showCategoryNames && !category.isEmpty())
