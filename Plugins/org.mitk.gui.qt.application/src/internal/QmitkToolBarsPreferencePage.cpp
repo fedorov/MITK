@@ -28,7 +28,7 @@ namespace
 {
   mitk::IPreferences* GetPreferences()
   {
-    auto* prefService = mitk::CoreServices::GetPreferencesService();
+    auto prefService = mitk::CoreServices::GetPreferencesService();
     return prefService->GetSystemPreferences()->Node(QmitkApplicationConstants::TOOL_BARS_PREFERENCES);
   }
 
@@ -41,8 +41,8 @@ namespace
   {
     std::multimap<QString, berry::IViewDescriptor::Pointer> result;
 
-    const auto* workbench = berry::PlatformUI::GetWorkbench();
-    const auto* viewRegistry = workbench->GetViewRegistry();
+    const auto workbench = berry::PlatformUI::GetWorkbench();
+    const auto viewRegistry = workbench->GetViewRegistry();
     const auto views = viewRegistry->GetViews();
 
     for (auto view : views)
@@ -64,18 +64,18 @@ namespace
   {
     std::vector<QToolBar*> result;
 
-    auto* workbench = berry::PlatformUI::GetWorkbench();
+    const auto* workbench = berry::PlatformUI::GetWorkbench();
     auto workbenchWindows = workbench->GetWorkbenchWindows();
 
     for (auto workbenchWindow : workbenchWindows)
     {
       if (auto shell = workbenchWindow->GetShell(); shell.IsNotNull())
       {
-        if (auto* mainWindow = qobject_cast<QMainWindow*>(shell->GetControl()); mainWindow != nullptr)
+        if (const auto* mainWindow = qobject_cast<QMainWindow*>(shell->GetControl()); mainWindow != nullptr)
         {
           for (auto child : mainWindow->children())
           {
-            if (auto* toolBar = qobject_cast<QToolBar*>(child); toolBar != nullptr)
+            if (auto toolBar = qobject_cast<QToolBar*>(child); toolBar != nullptr)
               result.push_back(toolBar);
           }
         }
@@ -122,19 +122,19 @@ void QmitkToolBarsPreferencePage::CreateQtControl(QWidget* parent)
 
   m_Ui->setupUi(m_Control);
 
-  auto views = GetViews();
+  const auto views = GetViews();
 
   for (auto category = views.cbegin(), end = views.cend(); category != end; category = views.upper_bound(category->first))
   {
-    auto* categoryItem = new QTreeWidgetItem;
+    auto categoryItem = new QTreeWidgetItem;
     categoryItem->setText(0, category->first);
     categoryItem->setCheckState(0, Qt::Checked);
 
-    auto range = views.equal_range(category->first);
+    const auto range = views.equal_range(category->first);
 
     for (auto view = range.first; view != range.second; ++view)
     {
-      auto* viewItem = new QTreeWidgetItem;
+      auto viewItem = new QTreeWidgetItem;
       viewItem->setText(0, view->second->GetLabel());
 
       categoryItem->addChild(viewItem);
@@ -153,12 +153,12 @@ QWidget* QmitkToolBarsPreferencePage::GetQtControl() const
 
 bool QmitkToolBarsPreferencePage::PerformOk()
 {
-  auto* prefs = GetPreferences();
-  auto toolBars = GetToolBars();
+  auto prefs = GetPreferences();
+  const auto toolBars = GetToolBars();
 
   for (int i = 0, count = m_Ui->treeWidget->topLevelItemCount(); i < count; ++i)
   {
-    auto* item = m_Ui->treeWidget->topLevelItem(i);
+    const auto* item = m_Ui->treeWidget->topLevelItem(i);
     const auto category = item->text(0);
     const bool isVisible = item->checkState(0) == Qt::Checked;
 
@@ -177,11 +177,11 @@ void QmitkToolBarsPreferencePage::PerformCancel()
 
 void QmitkToolBarsPreferencePage::Update()
 {
-  auto* prefs = GetPreferences();
+  const auto prefs = GetPreferences();
 
   for (int i = 0, count = m_Ui->treeWidget->topLevelItemCount(); i < count; ++i)
   {
-    auto* item = m_Ui->treeWidget->topLevelItem(i);
+    auto item = m_Ui->treeWidget->topLevelItem(i);
     const auto category = item->text(0).toStdString();
     const bool isVisible = prefs->GetBool(category, true);
 
