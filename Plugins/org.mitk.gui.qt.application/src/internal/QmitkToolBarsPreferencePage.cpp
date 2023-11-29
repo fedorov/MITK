@@ -17,6 +17,8 @@ found in the LICENSE file.
 #include <mitkIPreferencesService.h>
 #include <mitkIPreferences.h>
 
+#include <QmitkApplicationConstants.h>
+
 #include <berryPlatformUI.h>
 
 #include <QMainWindow>
@@ -27,7 +29,7 @@ namespace
   mitk::IPreferences* GetPreferences()
   {
     auto* prefService = mitk::CoreServices::GetPreferencesService();
-    return prefService->GetSystemPreferences()->Node("org.mitk.gui.qt.application/toolbars");
+    return prefService->GetSystemPreferences()->Node(QmitkApplicationConstants::TOOL_BARS_PREFERENCES);
   }
 
   // Get views as multimap with categories as keys.

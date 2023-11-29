@@ -1,5 +1,6 @@
 set(SRC_CPP_FILES
   QmitkAbstractDataNodeAction.cpp
+  QmitkApplicationConstants.cpp
   QmitkCloseProjectAction.cpp
   QmitkDataNodeColorAction.cpp
   QmitkDataNodeColorMapAction.cpp
