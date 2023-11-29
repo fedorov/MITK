@@ -51,6 +51,7 @@ found in the LICENSE file.
 #include <QmitkProgressBar.h>
 #include <QmitkMemoryUsageIndicatorView.h>
 #include <QmitkPreferencesDialog.h>
+#include <QmitkApplicationConstants.h>
 #include "QmitkExtFileSaveProjectAction.h"
 
 #include <itkConfigure.h>
@@ -598,8 +599,11 @@ void QmitkFlowApplicationWorkbenchWindowAdvisor::PostWindowCreate()
   if (showViewToolbar)
   {
     auto* prefService = mitk::CoreServices::GetPreferencesService();
+
     auto* stylePrefs = prefService->GetSystemPreferences()->Node(berry::QtPreferences::QT_STYLES_NODE);
     bool showCategoryNames = stylePrefs->GetBool(berry::QtPreferences::QT_SHOW_TOOLBAR_CATEGORY_NAMES, true);
+
+    auto* toolBarsPrefs = prefService->GetSystemPreferences()->Node(QmitkApplicationConstants::TOOL_BARS_PREFERENCES);
 
     // Order view descriptors by category
 
@@ -636,6 +640,8 @@ void QmitkFlowApplicationWorkbenchWindowAdvisor::PostWindowCreate()
         auto toolbar = new QToolBar;
         toolbar->setObjectName(category);
         mainWindow->addToolBar(toolbar);
+
+        toolbar->setVisible(toolBarsPrefs->GetBool(category.toStdString(), true));
 
         if (showCategoryNames && !category.isEmpty())
         {
